@@ -48,7 +48,7 @@ projeto4-contas-bancarias/
 ```
 
 # Como Executar no Ambiente Mainframe (TK5)
-Alocação dos Arquivos: Crie no Mainframe os datasets sequenciais para os arquivos de dados (RECFM=FB, LRECL=54, BLKSIZE=540).
-Compilação: Acesse a biblioteca onde o JCL está salvo e submeta o job de compilação (SUB no arquivo JCOMPILA.jcl). O JCL deve conter o parâmetro PARM.COB='LIB,LOAD,SIZE=2048K,BUF=1024K' em linha única contínua para habilitar os Copybooks. Verifique a SYSOUT para garantir o MAXCC 0000.
-Execução: Submeta o arquivo JEXECUTA.jcl. Ele criará um arquivo temporário em memória (&&ORD), fará o SORT com a concatenação dos dados e entregará o arquivo limpo para o executável COBOL.
-Resultados: Acesse a área de Outlist (Opção =3.8 na SYSOUT) e visualize o relatório bancário impresso contendo as listagens agrupadas, validações e totais.
+- Alocação dos Arquivos: Crie no Mainframe os datasets sequenciais para os arquivos de dados (RECFM=FB, LRECL=54, BLKSIZE=540).
+- Compilação: Acesse a biblioteca onde o JCL está salvo e submeta o job de compilação (SUB no arquivo JCOMPILA.jcl). O JCL deve conter o parâmetro PARM.COB='LIB,LOAD,SIZE=2048K,BUF=1024K' em linha única contínua para habilitar os Copybooks. Verifique a SYSOUT para garantir o MAXCC 0000.
+- Execução: Submeta o arquivo JEXECUTA.jcl. Ele criará um arquivo temporário em memória (&&ORD), fará o SORT com a concatenação dos dados e entregará o arquivo limpo para o executável COBOL.
+- Resultados: Acesse a área de Outlist (Opção =3.8 na SYSOUT) e visualize o relatório bancário impresso contendo as listagens agrupadas, validações e totais.
