@@ -1,0 +1,110 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CONTAS.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ARQ-CONTAS ASSIGN TO UT-S-CONTAS.
+           SELECT ARQ-RELAT  ASSIGN TO UT-S-SYSPRINT.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  ARQ-CONTAS
+           RECORDING MODE IS F
+           BLOCK CONTAINS 0 RECORDS
+           RECORD CONTAINS 54 CHARACTERS
+           LABEL RECORDS ARE STANDARD
+           DATA RECORD IS REG-CONTA.
+       01  REG-CONTA COPY REGCONTA.
+       FD  ARQ-RELAT
+           RECORDING MODE IS F
+           BLOCK CONTAINS 0 RECORDS
+           RECORD CONTAINS 80 CHARACTERS
+           LABEL RECORDS ARE STANDARD
+           DATA RECORD IS REG-SAIDA.
+       01  REG-SAIDA       PIC X(80).
+       WORKING-STORAGE SECTION.
+           77 WS-FIM        PIC X(01) VALUE 'N'.
+           77 WS-TOT-CONTAS PIC 9(05) VALUE ZEROS.
+           77 WS-SALDO-TOT  PIC S9(11)V99 VALUE ZEROS.
+           77 WS-TIPO-DESC  PIC X(09) VALUE SPACES.
+       01  WS-LIN-CABEC.
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 FILLER        PIC X(42)
+                VALUE '===== RELATORIO DE CONTAS BANCARIAS ====='.
+           05 FILLER        PIC X(37) VALUE SPACES.
+       01  WS-LIN-SUBCAB.
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 FILLER        PIC X(08) VALUE 'CONTA   '.
+           05 FILLER        PIC X(31) VALUE 'NOME CLIENTE         '.
+           05 FILLER        PIC X(07) VALUE 'AGENCIA'.
+           05 FILLER        PIC X(10) VALUE '  TIPO    '.
+           05 FILLER        PIC X(23) VALUE '  SALDO           '.
+       01  WS-LIN-DETALHE.
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 WS-DET-CONTA  PIC 9(08).
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 WS-DET-NOME   PIC X(30).
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 WS-DET-AGENC  PIC 9(04).
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 WS-DET-TIPO   PIC X(09).
+           05 FILLER        PIC X(01) VALUE SPACES.
+           05 WS-DET-SALDO  PIC ZZZZZZZZ9,99.
+           05 FILLER        PIC X(12) VALUE SPACES.
+       01  WS-LIN-TOTAIS.
+           05 FILLER        PIC X(20)
+                VALUE 'TOTAL DE CONTAS  : '.
+           05 WS-TOT-IMP    PIC ZZZ99.
+           05 FILLER        PIC X(55) VALUE SPACES.
+       01  WS-LIN-SALDO.
+           05 FILLER        PIC X(20)
+                VALUE 'SALDO TOTAL    : '.
+           05 WS-STOT-IMP   PIC ZZZZZZZZZZZ9,99.
+           05 FILLER        PIC X(45) VALUE SPACES.
+       01  WS-LIN-SEPAR.
+           05 FILLER        PIC X(80) VALUE ALL '-'.
+       PROCEDURE DIVISION.
+       0000-PRINCIPAL.
+           PERFORM 1000-INICIAR.
+           PERFORM 2000-PROCESSAR UNTIL WS-FIM = 'S'.
+           PERFORM 3000-FINALIZAR.
+           STOP RUN.
+       1000-INICIAR.
+           OPEN INPUT  ARQ-CONTAS.
+           OPEN OUTPUT ARQ-RELAT.
+           WRITE REG-SAIDA FROM WS-LIN-CABEC.
+           WRITE REG-SAIDA FROM WS-LIN-SEPAR.
+           WRITE REG-SAIDA FROM WS-LIN-SUBCAB.
+           WRITE REG-SAIDA FROM WS-LIN-SEPAR.
+           READ ARQ-CONTAS AT END MOVE 'S' TO WS-FIM.
+       2000-PROCESSAR.
+           ADD 1 TO WS-TOT-CONTAS.
+           IF SALDO IS NUMERIC
+               ADD SALDO TO WS-SALDO-TOT
+               MOVE SALDO TO WS-DET-SALDO
+           ELSE
+               MOVE ZEROS TO WS-DET-SALDO.
+           IF TIPO-CONTA = 'C'
+               MOVE 'CORRENTE ' TO WS-TIPO-DESC
+           ELSE
+              IF TIPO-CONTA = 'P'
+                  MOVE 'POUPANCA ' TO WS-TIPO-DESC
+              ELSE
+                  MOVE 'INVALIDO ' TO WS-TIPO-DESC.
+           MOVE NUM-CONTA    TO WS-DET-CONTA.
+           MOVE NOME-CLIENTE TO WS-DET-NOME.
+           MOVE AGENCIA      TO WS-DET-AGENC.
+           MOVE WS-TIPO-DESC TO WS-DET-TIPO.
+           WRITE REG-SAIDA FROM WS-LIN-DETALHE.
+           READ ARQ-CONTAS AT END MOVE 'S' TO WS-FIM.
+       3000-FINALIZAR.
+           WRITE REG-SAIDA FROM WS-LIN-SEPAR.
+           MOVE WS-TOT-CONTAS TO WS-TOT-IMP.
+           WRITE REG-SAIDA FROM WS-LIN-TOTAIS.
+           MOVE WS-SALDO-TOT  TO WS-STOT-IMP.
+           WRITE REG-SAIDA FROM WS-LIN-SALDO.
+           WRITE REG-SAIDA FROM WS-LIN-SEPAR.
+           CLOSE ARQ-CONTAS.
+           CLOSE ARQ-RELAT.
